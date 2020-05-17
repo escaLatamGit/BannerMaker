@@ -1,8 +1,26 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+"""
+
+    Banner Maker is a minimal script to automate text drawing on Image
+
+    Usage:
+            banner_maker.py  [--config=<config>] [--output=<output_path>]
+            banner_maker.py -h | --help
+    Options:
+            -h --help               Show this screen.
+            --version               Show version.
+            --config=<config>       Config file path [default: ../config/config.xlsx].
+            --output=<output_path>  Output path of new images [default: ../public/].
+"""
+import docopt
 from PIL import Image, ImageFont, ImageDraw
-from os import path
+from os import path,getcwd
 import pandas as pd
 from webcolors import hex_to_rgb
 import math
+
+version = 2.0
 
 
 def load_image(ipath):
@@ -57,10 +75,13 @@ def load_config(config_file_path='../config/config.xlsx', sheet_name=0, index_co
 
 
 if __name__ == '__main__':
-    configs = load_config()
+    args = docopt.docopt(__doc__, version=str(version))
+    config_path = args['--config']
+    public_path = args['--output']
+    configs = load_config(config_path)
     for config in configs.values():
         image_container = load_image(config['file'])
-        file_path = path.abspath(path.join('../public/', path.basename(config["file"])))
+        file_path = path.abspath(path.join(public_path, path.basename(config["file"])))
         for text_config in config['value']:
             add_text(image_container, text_config['text'], text_config['location'], text_config['font'],
                      text_config['fontsize'], text_config['color'], text_config['border'], text_config['border_color'])

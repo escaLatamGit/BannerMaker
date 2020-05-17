@@ -1,0 +1,8 @@
+numpy==1.18.4
+pandas==1.0.3
+Pillow==7.1.2
+python-dateutil==2.8.1
+pytz==2020.1
+six==1.14.0
+webcolors==1.11.1
+xlrd==1.2.0

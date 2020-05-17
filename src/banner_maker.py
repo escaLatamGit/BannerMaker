@@ -9,17 +9,17 @@ def load_image(ipath):
     return Image.open(ipath)
 
 
-def add_text(image, text, location, font, fontsize=14, fontcolor=(0, 0, 0), border=0, border_color=(0, 0, 0)):
+def add_text(image, text, location, font, fontsize=14, fontcolor=(0, 0, 0), border=0, border_color=(0, 0, 0),
+             points=15):
     font_format = ImageFont.truetype(font, fontsize)
     drawer = ImageDraw.Draw(image)
 
     if border:
         (x, y) = location
-        for step in range(0, (border * 10), 1):
-            angle = step * 2 * math.pi / (border * 10)
+        for step in range(0, math.floor(border * points), 1):
+            angle = step * 2 * math.pi / math.floor(border * points)
             drawer.text((x - border * math.cos(angle), y - border * math.sin(angle)), text, border_color,
                         font=font_format)
-
     drawer.text(location, text, fontcolor, font=font_format)
     return image
 

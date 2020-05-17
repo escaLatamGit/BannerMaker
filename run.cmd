@@ -1,0 +1,1 @@
+python src/banner_maker.py --config="./config/config.xlsx" --output="./public/"

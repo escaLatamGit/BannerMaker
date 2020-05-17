@@ -11,7 +11,7 @@ def load_image(ipath):
 def add_text(image, text, location, font, fontsize=14, fontcolor=(0, 0, 0)):
     font_format = ImageFont.truetype(font, fontsize)
     drawer = ImageDraw.Draw(image)
-    drawer.text(location, text, fontcolor, font=font_format)
+    drawer.text(location, str(text), fontcolor, font=font_format)
     return image
 
 
@@ -49,8 +49,8 @@ if __name__ == '__main__':
     configs = load_config()
     for config in configs.values():
         image_container = load_image(config['file'])
-        name, ext = path.splitext(config['file'])
+        file_path = path.abspath(path.join('../public/', path.basename(config["file"])))
         for text_config in config['value']:
             add_text(image_container, text_config['text'], text_config['location'], text_config['font'],
                      text_config['fontsize'], text_config['color'])
-        image_container.save(f'{name}_out{ext}')
+        image_container.save(file_path)

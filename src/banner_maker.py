@@ -16,6 +16,7 @@
 """
 import logging
 import math
+import re
 from os import path
 
 import docopt
@@ -30,11 +31,34 @@ def load_image(ipath):
     return Image.open(ipath)
 
 
+def resolve_centered_tex_position(text, font, box_size, offsets=(0, 0)):
+    words = re.split('\n+', text)
+    max_w, total_h = (0, 0)
+    for word in words:
+        (w, h), _ = font.font.getsize(word)
+        if w > max_w:
+            max_w = w
+        total_h += h
+
+    W, H = box_size
+    ow, oy = offsets
+    return round((W - max_w) / 2 + ow), round((H - total_h) / 2 + oy)
+
+
 def add_text(image, text, location, font, fontsize=14, fontcolor=(0, 0, 0), border=0, border_color=(0, 0, 0),
+             centering=(False, False),
              points=15):
     font_format = ImageFont.truetype(font, fontsize)
     drawer = ImageDraw.Draw(image)
-
+    center_x, center_y = centering
+    if center_x or center_y:
+        new_location = resolve_centered_tex_position(text, font_format, image.size)
+        if center_x and center_y:
+            location = new_location
+        elif center_y:
+            location = (location[0], new_location[1])
+        elif center_x:
+            location = (new_location[0], location[1])
     if border:
         (x, y) = location
         for step in range(0, math.floor(border * points), 1):
@@ -69,6 +93,8 @@ def load_config(config_file_path='../config/config.xlsx', sheet_name=0, index_co
             new_row['border_color'] = hex_to_rgb(row.Bordercolor) if row.Border else None
             new_row['location'] = (row.X, row.Y)
             new_row['font'] = check_file(row.Fonttype)
+            print(row.Centering)
+            new_row['centering'] = ('x' in row.Centering, 'y' in row.Centering) if row.Centering else (False, False)
             if row.Group not in validator:
                 validator[row.Group] = row.File
             if not validator[row.Group] == row.File:
@@ -101,7 +127,8 @@ if __name__ == '__main__':
                 for text_config in config['value']:
                     add_text(image_container, text_config['text'], text_config['location'], text_config['font'],
                              text_config['fontsize'], text_config['color'], text_config['border'],
-                             text_config['border_color'])
+                             text_config['border_color'],
+                             text_config['centering'])
                 image_container.save(file_path)
                 logging.info(f'Output File:"{file_path}"')
                 logging.info('-----------------------')
